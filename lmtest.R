@@ -24,10 +24,12 @@ dat <- data.frame(x=x, y=y
 formula <- y~x+country+religion
 summary(lm(formula, data=dat))
 
-## Now set the NAs to really be NAs
-# dat <- droplevels(within(dat, {
-# 	religion[country==3] <- NA
-# }))
+# Now set the NAs to really be NAs
+dat <- droplevels(within(dat, {
+	religion[country==3] <- NA
+	education[religion==2] <- NA
+	
+}))
 
 # Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
 summary(lmFill(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE))
@@ -45,6 +47,6 @@ summary(lm(formula2, data=dat))
 # Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
 summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,dat$religion==2), fillvar=list("religion","education"), Fillmethod="base",check=FALSE))
 
-summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,dat$religion==2), fillvar=list("religion","education"), Fillmethod="mean",check=FALSE))
+summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,(dat$religion==2)&!is.na(dat$religion==2)), fillvar=list("religion","education"), Fillmethod="mean",check=FALSE))
 
 
