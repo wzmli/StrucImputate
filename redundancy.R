@@ -6,7 +6,8 @@
 structFill <- function(mm, NArows, varNum, Fillmethod="mean",check){
   
   modAssign <- attr(mm, "assign")
-  fillcols <- which(modAssign==varNum)
+  fillcolnums <- function(x){which(modAssign==x)}
+  fillcols <- lapply(varNum,fillcolnums)
   
   if(check){
   dcheck <- na.omit(mm[NArows, fillcols])
@@ -14,14 +15,18 @@ structFill <- function(mm, NArows, varNum, Fillmethod="mean",check){
   }
   
   if(Fillmethod=="base")
-    mm[NArows, fillcols] <- 0
+    for(i in 1:length(NArows)){
+    mm[NArows[[i]], fillcols[[i]]] <- 0
+    }
   else if (Fillmethod=="mean"){
-    mm[NArows, fillcols] <- matrix(
-      colMeans(mm[!NArows,fillcols])
-      , nrow=sum(NArows)
-      , ncol=length(fillcols)
+    for(i in 1:length(NArows)){
+    mm[NArows[[i]], fillcols[[i]]] <- matrix(
+      colMeans(mm[!NArows[[i]],fillcols[[i]]])
+      , nrow=sum(NArows[[i]])
+      , ncol=length(fillcols[[i]])
       , byrow=TRUE
     )
+    }
   }
   else stop("Unrecognized Fill method")
   
