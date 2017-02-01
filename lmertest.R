@@ -27,10 +27,12 @@ formula <- y~x+country+religion+(1|village)
 summary(lmer(formula, data=dat))
 
 ## Set NAs to base level; this matches the default behaviour
-summary(lmerFill(y~x+country+religion+(1|village), data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE))
+mod1 <- (lmerFill(y~x+country+religion+(1|village), data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE))
 
 ## Set NAs to model center, or variable mean, or whatever we should call it
 ## Seems better
 ## Interestingly (but sensibly), this changes only the value estimated for the effect of the country with missing data
 summary(lmerFill(y~x+country+religion+(1|village), data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE))
+
+aa <- lmerMM(y~x+country+religion+(1|village), data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
 

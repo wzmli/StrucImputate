@@ -2,7 +2,7 @@
 
 current: target
 
-target pngtarget pdftarget vtarget acrtarget: lmertest.Rout 
+target pngtarget pdftarget vtarget acrtarget: clmmtest.Rout 
 
 #################################################################
 

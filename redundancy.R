@@ -155,3 +155,47 @@ clmmFill <- function (formula, data,NArows, fillvar, Fillmethod="base", check=FA
     res$model <- frames$mf
   return(res)
 }
+
+
+##MM functions
+
+lmerMM <- function(formula, data, NArows, fillvar, Fillmethod="base",check=FALSE){
+  lmod <- lFormula(formula, data)
+  varNum <- which(attr(attr(lmod$fr, "terms"), "term.labels")==fillvar)
+  lmod$X <- structFill(lmod$X, NArows, varNum, Fillmethod, check)
+  return(lmod$X)
+}
+
+glmerMM <- function(formula, data, NArows, fillvar, Fillmethod="base",check=FALSE,family){
+  glmod <- lme4:::glFormula(formula,data,family)
+  varNum <- which(attr(attr(glmod$fr, "terms"), "term.labels")==fillvar)
+  glmod$X <- structFill(glmod$X, NArows, varNum, Fillmethod, check)
+  return(glmod$X)
+}
+
+
+clmmMM <- function (formula, data,NArows, fillvar, Fillmethod="base", check=FALSE,weights, start, subset, na.action, contrasts, 
+                      Hess = TRUE, model = TRUE, link = c("logit", "probit", "cloglog", 
+                                                          "loglog", "cauchit"), doFit = TRUE, control = list(), 
+                      nAGQ = 1L, threshold = c("flexible", "symmetric", "symmetric2", 
+                                               "equidistant"), ...) 
+{
+  mc <- match.call(expand.dots = FALSE)
+  link <- match.arg(link)
+  threshold <- match.arg(threshold)
+  if (missing(formula)) 
+    stop("Model needs a formula")
+  if (missing(contrasts)) 
+    contrasts <- NULL
+  control <- ordinal:::getCtrlArgs(control, list(...))
+  nAGQ <- as.integer(round(nAGQ))
+  formulae <- ordinal:::clmm.formulae(formula = formula)
+  frames <- ordinal:::clmm.frames(modelcall = mc, formulae = formulae, 
+                                  contrasts)
+  if (control$method == "model.frame") 
+    return(frames)
+  varNum <- which(attr(attr(frames$mf, "terms"), "term.labels")==fillvar)
+  frames$X <- structFill(frames$X, NArows, varNum, Fillmethod,check)
+  frames$X <- drop.coef(frames$X, silent = FALSE)
+  return(frames$X)
+}

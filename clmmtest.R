@@ -26,9 +26,14 @@ dat <- data.frame(x=x, y=y
 formula <- as.factor(y)~x+country+religion+(1|village)
 summary(clmm(formula, data=dat))
 
-summary(clmmFill(formula,data=dat,NArows = dat$country==3, fillvar="religion",Fillmethod="base"))
+fillbase <- clmmFill(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="base")
 
-summary(clmmFill(formula,data=dat,NArows = dat$country==3, fillvar="religion",Fillmethod="mean"))
+fillmean <- clmmFill(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean")
+
+fillbase
+fillmean
+
+
 
 # debug(clmm)
 # undebug(clmm)
@@ -41,8 +46,8 @@ summary(clmmFill(formula,data=dat,NArows = dat$country==3, fillvar="religion",Fi
 
 
 summary(lme4:::glmer(formula,data=dat,family = binomial))
-summary(glmerFill(formula, data=dat, NArows = dat$country==3, fillvar="religion", Fillmethod="base",check=FALSE,family=binomial))
-summary(glmerFill(formula, data=dat, NArows = dat$country==3, fillvar="religion", Fillmethod="mean",check=FALSE,family=binomial))
+summary(glmerFill(formula, data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE,family=binomial))
+summary(glmerFill(formula, data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE,family=binomial))
 
 
 # debug(glmerFill)
