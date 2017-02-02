@@ -33,11 +33,12 @@ dat <- droplevels(within(dat, {
 
 # Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
 lmbase <- lmFill(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
-err <- residuals(lmbase)
 mmbase <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
+err <- y - mmbase%*%lmbase$coefficients
+var_err <- (t(err) %*% err)/(nrow(mmbase)-ncol(mmbase))
 
 varlmbase <- vcov(lmbase)
-varlmbase_hand <- var(err)*solve(t(mmbase)%*%mmbase)
+varlmbase_hand <- as.numeric(var_err) * solve(t(mmbase)%*%mmbase)
 
 print(lmbase)
 print(varlmbase)
