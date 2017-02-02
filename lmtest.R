@@ -32,21 +32,33 @@ dat <- droplevels(within(dat, {
 }))
 
 # Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
-summary(lmFill(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE))
+lmbase <- lmFill(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
+err <- residuals(lmbase)
+mmbase <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
+
+varlmbase <- vcov(lmbase)
+varlmbase_hand <- var(err)*solve(t(mmbase)%*%mmbase)
+
+print(lmbase)
+print(varlmbase)
+print(varlmbase_hand)
+
+all.equal(varlmbase_hand,varlmbase)
 
 ## Set NAs to model center, or variable mean, or whatever we should call it
 ## Seems better
 ## Interestingly (but sensibly), this changes only the value estimated for the effect of the country with missing data
-summary(lmFill(y~x+country+religion, dat, NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE))
-
-### multiple structural NA
-
-formula2 <- y~x+country+religion+education
-summary(lm(formula2, data=dat))
-
-# Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
-summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,dat$religion==2), fillvar=list("religion","education"), Fillmethod="base",check=FALSE))
-
-summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,(dat$religion==2)&!is.na(dat$religion==2)), fillvar=list("religion","education"), Fillmethod="mean",check=FALSE))
-
-
+# lmmean <- lmFill(y~x+country+religion, dat, NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
+# mmmean <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE)
+# ### multiple structural NA
+# 
+# 
+# formula2 <- y~x+country+religion+education
+# summary(lm(formula2, data=dat))
+# 
+# # Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
+# summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,dat$religion==2), fillvar=list("religion","education"), Fillmethod="base",check=FALSE))
+# 
+# summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,(dat$religion==2)&!is.na(dat$religion==2)), fillvar=list("religion","education"), Fillmethod="mean",check=FALSE))
+# 
+# 

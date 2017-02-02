@@ -159,6 +159,18 @@ clmmFill <- function (formula, data,NArows, fillvar, Fillmethod="base", check=FA
 
 ##MM functions
 
+
+lmMM <- function(formula, data, NArows, fillvar, Fillmethod="mean",check=FALSE){
+  
+  mf <- model.frame(formula, data=data, na.action=NULL)
+  mt <- attr(mf, "terms")
+  mm <- model.matrix(mt, mf)
+  
+  varNum <- which(attr(attr(mf, "terms"), "term.labels")==fillvar)
+  
+  mm <- structFill(mm, NArows, varNum, Fillmethod,check)
+  return(mm)
+}
 lmerMM <- function(formula, data, NArows, fillvar, Fillmethod="base",check=FALSE){
   lmod <- lFormula(formula, data)
   varNum <- which(attr(attr(lmod$fr, "terms"), "term.labels")==fillvar)
