@@ -46,11 +46,30 @@ print(varlmbase_hand)
 
 all.equal(varlmbase_hand,varlmbase)
 
-## Set NAs to model center, or variable mean, or whatever we should call it
-## Seems better
-## Interestingly (but sensibly), this changes only the value estimated for the effect of the country with missing data
-# lmmean <- lmFill(y~x+country+religion, dat, NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
-# mmmean <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE)
+# Set NAs to model center, or variable mean, or whatever we should call it
+# Seems better
+# Interestingly (but sensibly), this changes only the value estimated for the effect of the country with missing data
+lmmean <- lmFill(y~x+country+religion, dat, NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
+mmmean <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE)
+
+errmean <- y - mmmean%*%lmmean$coefficients
+var_errmean <- (t(errmean) %*% errmean)/(nrow(mmmean)-ncol(mmmean))
+
+CM <- 
+bhat <- CM %*% lmbase$coefficients
+
+varlmmean <- vcov(lmmean)
+varlmmean_hand <- as.numeric(var_errmean) * solve(t(mmmean)%*%mmmean)
+
+print(lmmean)
+print(varlmmean)
+print(varlmmean_hand)
+
+all.equal(varlmbase_hand,varlmbase)
+
+
+
+
 # ### multiple structural NA
 # 
 # 
