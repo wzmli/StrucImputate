@@ -55,7 +55,7 @@ errmean <- y - mmmean%*%lmmean$coefficients
 var_errmean <- (t(errmean) %*% errmean)/(nrow(mmmean)-ncol(mmmean))
 
 CM <- CMFill(y~x+country+religion, dat,rowfill=4, colfill=c(5,6))
-bhat <- CM %*% lmbase$coefficients
+bhat <- solve(CM) %*% lmbase$coefficients
 
 print(CM)
 print(lmbase)
@@ -100,3 +100,7 @@ var_errmean_mike <- (t(errmean_mike) %*% errmean_mike)/(nrow(mmmean)-ncol(mmmean
 varlmmean_hand <- as.numeric(var_errmean) * solve(t(mmmean)%*%mmmean)
 all.equal(varlmmean_hand,vcov(lmmean))
 
+
+
+T_hand <- solve(solve(t(mmmean)%*%mmmean)%*%t(mmmean)%*%mmbase)
+print(T_hand)
