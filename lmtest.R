@@ -55,17 +55,25 @@ mmmean <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=
 errmean <- y - mmmean%*%lmmean$coefficients
 var_errmean <- (t(errmean) %*% errmean)/(nrow(mmmean)-ncol(mmmean))
 
-CM <- 
+CM <- CMFill(y~x+country+religion, dat,rowfill=4, colfill=c(5,6))
 bhat <- CM %*% lmbase$coefficients
 
-varlmmean <- vcov(lmmean)
-varlmmean_hand <- as.numeric(var_errmean) * solve(t(mmmean)%*%mmmean)
+print(CM)
+print(bhat)
+print(lmmean$coefficients)
 
-print(lmmean)
-print(varlmmean)
-print(varlmmean_hand)
+all.equal(bhat,lmmean$coefficients)
 
-all.equal(varlmbase_hand,varlmbase)
+
+# 
+# varlmmean <- vcov(lmmean)
+# varlmmean_hand <- as.numeric(var_errmean) * solve(t(mmmean)%*%mmmean)
+# 
+# print(lmmean)
+# print(varlmmean)
+# print(varlmmean_hand)
+# 
+# all.equal(varlmbase_hand,varlmbase)
 
 
 
@@ -82,3 +90,13 @@ all.equal(varlmbase_hand,varlmbase)
 # summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,(dat$religion==2)&!is.na(dat$religion==2)), fillvar=list("religion","education"), Fillmethod="mean",check=FALSE))
 # 
 # 
+
+
+print("Modelling Mike's way")
+bhat_mike <- solve(t(mmmean)%*%mmmean)%*%t(mmmean)%*%mmbase%*%lmbase$coefficients
+print(bhat_mike)
+errmean_mike <- y - mmmean%*%bhat_mike
+var_errmean_mike <- (t(errmean_mike) %*% errmean_mike)/(nrow(mmmean)-ncol(mmmean))
+varlmmean_hand <- as.numeric(var_errmean) * solve(t(mmmean)%*%mmmean)
+all.equal(varlmmean_hand,vcov(lmmean))
+

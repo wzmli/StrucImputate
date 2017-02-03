@@ -211,3 +211,14 @@ clmmMM <- function (formula, data,NArows, fillvar, Fillmethod="base", check=FALS
   frames$X <- drop.coef(frames$X, silent = FALSE)
   return(frames$X)
 }
+
+## characteristic matrix fill
+
+CMFill <- function(formula, data, rowfill, colfill){
+  mf <- model.frame(formula, data=dat, na.action=NULL)
+  mt <- attr(mf, "terms")
+  mm <- model.matrix(mt, mf)
+  cm <- diag(ncol(mm))
+  cm[rowfill,colfill] <- colMeans(mm,na.rm = TRUE)[colfill]
+  return(cm)
+}
