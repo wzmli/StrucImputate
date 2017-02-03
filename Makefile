@@ -2,7 +2,7 @@
 
 current: target
 
-target pngtarget pdftarget vtarget acrtarget: clmmtest.Rout 
+target pngtarget pdftarget vtarget acrtarget: lmtest.Rout 
 
 #################################################################
 
@@ -20,6 +20,7 @@ lmertest.Rout: redundancy.Rout lmertest.R
 
 clmmtest.Rout: redundancy.Rout clmmtest.R
 
+clmm2test.Rout: redundancy.Rout clmm2test.R
 #############
 
 -include $(ms)/git.mk

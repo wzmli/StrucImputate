@@ -40,7 +40,6 @@ var_err <- (t(err) %*% err)/(nrow(mmbase)-ncol(mmbase))
 varlmbase <- vcov(lmbase)
 varlmbase_hand <- as.numeric(var_err) * solve(t(mmbase)%*%mmbase)
 
-print(lmbase)
 print(varlmbase)
 print(varlmbase_hand)
 
@@ -59,6 +58,7 @@ CM <- CMFill(y~x+country+religion, dat,rowfill=4, colfill=c(5,6))
 bhat <- CM %*% lmbase$coefficients
 
 print(CM)
+print(lmbase)
 print(bhat)
 print(lmmean$coefficients)
 

@@ -24,31 +24,48 @@ dat <- data.frame(x=x, y=y
 )
 ## Naive lmer works, default behaviour is like our "base"
 formula <- as.factor(y)~x+country+religion+(1|village)
-summary(clmm(formula, data=dat))
+summary(clmm2(formula, data=dat))
 
 fillbase <- clmmFill(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="base")
-
+mmbase <- clmmMM(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="base")
 fillmean <- clmmFill(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean")
+mmmean <- clmmMM(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean")
 
 fillbase
 fillmean
 
+fillbase$coefficients
+fillmean$coefficients
+
+dat <- droplevels(within(dat, {
+  religion[country==3] <- NA
+  
+}))
+
+CM <- CMFill(y~x+country+religion, dat,rowfill=4, colfill=c(5,6))
+bhat <- CM %*% fillbase$coefficients
+print(bhat)
+print(fillmean$coefficients)
+
+bhat_mike <- solve(t(mmmean)%*%mmmean)%*%t(mmmean)%*%mmbase%*%fillbase$coefficients
 
 
-# debug(clmm)
-# undebug(clmm)
-# debug(clmmFill)
-# undebug(clmmFill)
 # 
-# debug(ordinal:::getCtrlArgs)
-# undebug(ordinal:::getCtrlArgs)
 # 
-
-
-summary(lme4:::glmer(formula,data=dat,family = binomial))
-summary(glmerFill(formula, data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE,family=binomial))
-summary(glmerFill(formula, data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE,family=binomial))
-
-
-# debug(glmerFill)
-# undebug(glmerFill)
+# # debug(clmm)
+# # undebug(clmm)
+# # debug(clmmFill)
+# # undebug(clmmFill)
+# # 
+# # debug(ordinal:::getCtrlArgs)
+# # undebug(ordinal:::getCtrlArgs)
+# # 
+# 
+# 
+# summary(lme4:::glmer(formula,data=dat,family = binomial))
+# summary(glmerFill(formula, data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE,family=binomial))
+# summary(glmerFill(formula, data=dat, NArows = list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE,family=binomial))
+# 
+# 
+# # debug(glmerFill)
+# # undebug(glmerFill)
