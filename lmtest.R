@@ -35,16 +35,6 @@ dat <- droplevels(within(dat, {
 lmbase <- lmFill(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
 mmbase <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
 errbase <- residuals(lmbase) 
-err <- y - mmbase%*%lmbase$coefficients
-var_err <- (t(err) %*% err)/(nrow(mmbase)-ncol(mmbase))
-
-varlmbase <- vcov(lmbase)
-varlmbase_hand <- as.numeric(var_err) * solve(t(mmbase)%*%mmbase)
-
-print(varlmbase)
-print(varlmbase_hand)
-
-all.equal(varlmbase_hand,varlmbase)
 
 # Set NAs to model center, or variable mean, or whatever we should call it
 # Seems better
@@ -52,56 +42,20 @@ all.equal(varlmbase_hand,varlmbase)
 lmmean <- lmFill(y~x+country+religion, dat, NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
 mmmean <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE)
 
-errmean <- y - mmmean%*%lmmean$coefficients
-var_errmean <- (t(errmean) %*% errmean)/(nrow(mmmean)-ncol(mmmean))
-
 CM <- CMFill(y~x+country+religion, dat,rowfill=4, colfill=c(5,6))
 bhat <- solve(CM) %*% lmbase$coefficients
 
 print(CM)
-print(lmbase)
 print(bhat)
 print(lmmean$coefficients)
 
 all.equal(bhat,lmmean$coefficients)
 
+vcov_hand <- solve(CM)%*%vcov(lmbase)%*%solve(t(CM))
 
-# 
-# varlmmean <- vcov(lmmean)
-# varlmmean_hand <- as.numeric(var_errmean) * solve(t(mmmean)%*%mmmean)
-# 
-# print(lmmean)
-# print(varlmmean)
-# print(varlmmean_hand)
-# 
-# all.equal(varlmbase_hand,varlmbase)
+print(vcov(lmmean))
+print(vcov_hand)
+
+all.equal(vcov_hand[,],vcov(lmmean)[,])
 
 
-
-
-# ### multiple structural NA
-# 
-# 
-# formula2 <- y~x+country+religion+education
-# summary(lm(formula2, data=dat))
-# 
-# # Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
-# summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,dat$religion==2), fillvar=list("religion","education"), Fillmethod="base",check=FALSE))
-# 
-# summary(lmFill(y~x+country+religion+education, dat, NArows  = list(dat$country==3,(dat$religion==2)&!is.na(dat$religion==2)), fillvar=list("religion","education"), Fillmethod="mean",check=FALSE))
-# 
-# 
-
-
-print("Modelling Mike's way")
-bhat_mike <- solve(t(mmmean)%*%mmmean)%*%t(mmmean)%*%mmbase%*%lmbase$coefficients
-print(bhat_mike)
-errmean_mike <- y - mmmean%*%bhat_mike
-var_errmean_mike <- (t(errmean_mike) %*% errmean_mike)/(nrow(mmmean)-ncol(mmmean))
-varlmmean_hand <- sum(errbase^2)/(nrow(mmmean)-ncol(mmmean)) * solve(t(mmmean)%*%mmmean)
-all.equal(varlmmean_hand,vcov(lmmean))
-
-
-
-T_hand <- solve(solve(t(mmmean)%*%mmmean)%*%t(mmmean)%*%mmbase)
-print(T_hand)
