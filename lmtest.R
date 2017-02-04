@@ -24,38 +24,27 @@ dat <- data.frame(x=x, y=y
 formula <- y~x+country+religion
 summary(lm(formula, data=dat))
 
-# Now set the NAs to really be NAs
-dat <- droplevels(within(dat, {
-	religion[country==3] <- NA
-	education[religion==2] <- NA
-	
-}))
-
 # Set NAs to base level; this matches the default behaviour (but without the dummy level, so better)
 lmbase <- lmFill(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
-mmbase <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="base",check=FALSE)
-errbase <- residuals(lmbase) 
+summary(lmbase)
 
 # Set NAs to model center, or variable mean, or whatever we should call it
 # Seems better
 # Interestingly (but sensibly), this changes only the value estimated for the effect of the country with missing data
 lmmean <- lmFill(y~x+country+religion, dat, NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
-mmmean <- lmMM(y~x+country+religion, dat, NArows= list(dat$country==3), fillvar=list("religion"), Fillmethod="mean",check=FALSE)
 
-CM <- CMFill(y~x+country+religion, dat,rowfill=4, colfill=c(5,6))
-bhat <- solve(CM) %*% lmbase$coefficients
 
-print(CM)
+CMbase <- CMM(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="base",check=FALSE)
+CMmean <- CMM(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
+
+## transforming Betas
+N <- solve(t(CMmean)%*%CMmean)%*%t(CMmean)%*%CMbase
+print(N)
+bhat <- N%*%lmbase$coefficients[!is.na(lmbase$coefficients)]
 print(bhat)
-print(lmmean$coefficients)
+print(lmmean$coefficients[!is.na(lmmean$coefficients)])
 
-all.equal(bhat,lmmean$coefficients)
 
-vcov_hand <- solve(CM)%*%vcov(lmbase)%*%solve(t(CM))
-
+## checking if we can get the same variance-covariance of lmmean
 print(vcov(lmmean))
-print(vcov_hand)
-
-all.equal(vcov_hand[,],vcov(lmmean)[,])
-
-
+print(N%*%vcov(lmbase)%*%t(N))
