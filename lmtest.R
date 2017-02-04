@@ -33,18 +33,20 @@ summary(lmbase)
 # Interestingly (but sensibly), this changes only the value estimated for the effect of the country with missing data
 lmmean <- lmFill(y~x+country+religion, dat, NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
 
-
+## Compute model matrix under original and transformed (X and N)
 CMbase <- CMM(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="base",check=FALSE)
 CMmean <- CMM(formula,data=dat,NArows = list(dat$country==3), fillvar=list("religion"),Fillmethod="mean",check=FALSE)
 
-## transforming Betas
-N <- solve(t(CMmean)%*%CMmean)%*%t(CMmean)%*%CMbase
-print(N)
-bhat <- N%*%lmbase$coefficients[!is.na(lmbase$coefficients)]
+## 
+checkS <- solve(t(CMmean)%*%CMmean)%*%t(CMmean)%*%CMbase
+print(checkS)
+bhat <- checkS%*%lmbase$coefficients[!is.na(lmbase$coefficients)]
+
+## Are our two bhats the same? Yes
 print(bhat)
 print(lmmean$coefficients[!is.na(lmmean$coefficients)])
 
 
-## checking if we can get the same variance-covariance of lmmean
+## Are the two vcovs the same? Yes!
 print(vcov(lmmean))
-print(N%*%vcov(lmbase)%*%t(N))
+print(checkS%*%vcov(lmbase)%*%t(checkS))

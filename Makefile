@@ -12,6 +12,10 @@ include stuff.mk
 
 Sources += todo.md
 
+######################################################################
+
+Sources += $(wildcard *.R)
+
 redundancy.Rout: redundancy.R
 
 lmtest.Rout: redundancy.Rout lmtest.R
