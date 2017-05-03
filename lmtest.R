@@ -50,3 +50,10 @@ print(lmmean$coefficients[!is.na(lmmean$coefficients)])
 ## Are the two vcovs the same? Yes!
 print(vcov(lmmean))
 print(checkS%*%vcov(lmbase)%*%t(checkS))
+
+
+
+## check interaction term
+
+lmint <- lm(y~x+country*religion,data=dat)
+print(summary(lmint))
